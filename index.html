@@ -277,8 +277,8 @@
             ooatariPercent  =  Number($("#ooatariPercent").val());
             omakePercent  =  Number($("#omakePercent").val());
 
-            if (typeof retrySpan !== 'number' || retrySpan % 1 !== 0 || retrySpan < 0) {
-                alert("リトライ間隔は整数を指定してください。");
+            if (typeof retrySpan !== 'number' || retrySpan < 0) {
+                alert("リトライ間隔は数字を指定してください。");
                 return;
             }
             if (typeof ooatariPercent !== 'number' || ooatariPercent % 1 !== 0 || ooatariPercent < 0) {
