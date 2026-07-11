@@ -180,8 +180,8 @@
                 SOUND OFF
             </label>
             <label class="item-label">
-            
-                <span>もう一回の間隔</span>
+
+                <span>リトライ間隔</span>
                 <span style="margin-left: 15px; transform: scale(0.8);">
                     <input type="number" id="retrySpan" value="1" min="0" max="10" size="2"
                         style="width: 50px; padding: 3px; text-align: center;" />
@@ -273,6 +273,24 @@
 
         $("#saveBtn").click(function () {
 
+            retrySpan  =  Number($("#retrySpan").val());
+            ooatariPercent  =  Number($("#ooatariPercent").val());
+            omakePercent  =  Number($("#omakePercent").val());
+
+            if (typeof retrySpan !== 'number' || retrySpan % 1 !== 0 || retrySpan < 0) {
+                alert("リトライ間隔は整数を指定してください。");
+                return;
+            }
+            if (typeof ooatariPercent !== 'number' || ooatariPercent % 1 !== 0 || ooatariPercent < 0) {
+                alert("大当たりの％は整数を指定してください。");
+                return;
+            }
+            if (typeof omakePercent !== 'number' || omakePercent % 1 !== 0 || omakePercent < 0) {
+                alert("おまけの％は整数を指定してください。");
+                return;
+            }
+
+
             const drinkEnabledItems = [];
             const jellyEnabledItems = [];
 
@@ -319,4 +337,5 @@
         }
     </script>
 </body>
+
 </html>
