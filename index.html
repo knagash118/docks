@@ -154,6 +154,35 @@
                 transform: rotate(360deg);
             }
         }
+
+        #counterTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #counterTable th {
+            background: #2196F3;
+            color: white;
+            padding: 10px;
+        }
+
+        #counterTable td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #counterTable tbody tr:nth-child(even) {
+            background: #f7f7f7;
+        }
+
+        #counterTable tfoot {
+            background: #FFF3CD;
+            font-weight: bold;
+            font-size: 20px;
+        }
     </style>
 </head>
 <div id="loading">
@@ -210,6 +239,26 @@
         <div class="save-button">
             <button id="saveBtn" class="btn" style="margin-top:20px;">設定</button>
         </div>
+
+        <table id="counterTable">
+            <thead>
+                <tr>
+                    <th>日付</th>
+                    <th>大当たり</th>
+                    <th>おまけ</th>
+                    <th>合計</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <th>総合計</th>
+                    <th id="totalOoatari">0</th>
+                    <th id="totalOmake">0</th>
+                    <th id="grandTotal">0</th>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
     <script>
@@ -269,13 +318,17 @@
             ).always(function () {
                 hideLoading();
             });
+
+            //あたりのカウントを取得する
+            loadCounter();
+
         });
 
         $("#saveBtn").click(function () {
 
-            retrySpan  =  Number($("#retrySpan").val());
-            ooatariPercent  =  Number($("#ooatariPercent").val());
-            omakePercent  =  Number($("#omakePercent").val());
+            retrySpan = Number($("#retrySpan").val());
+            ooatariPercent = Number($("#ooatariPercent").val());
+            omakePercent = Number($("#omakePercent").val());
 
             if (typeof retrySpan !== 'number' || retrySpan < 0) {
                 alert("リトライ間隔は数字を指定してください。");
@@ -334,6 +387,71 @@
 
         function hideLoading() {
             $("#loading").hide();
+        }
+
+        function loadCounter() {
+
+            $.getJSON(
+                "https://slot-nanryo-default-rtdb.firebaseio.com/counter.json",
+                function (data) {
+
+                    const tbody = $("#counterTable tbody");
+                    tbody.empty();
+
+                    let totalOoatari = 0;
+                    let totalOmake = 0;
+                    let rowCount = 0;
+
+                    // 表示する日付
+                    const targetDates = [
+                        "2026-07-12",
+                        "2026-09-10",
+                        "2026-09-11",
+                        "2026-09-12"
+                    ];
+                    // 新しい日付順
+                    targetDates.reverse().forEach(date => {
+
+                        if (!data || !data[date]) {
+                            return;
+                        }
+
+                        const oo = data[date].ooatari || 0;
+                        const om = data[date].omake || 0;
+
+                        // 当選が0件なら表示しない
+                        if (oo === 0 && om === 0) {
+                            return;
+                        }
+
+                        totalOoatari += oo;
+                        totalOmake += om;
+                        rowCount++;
+
+                        tbody.append(`
+                    <tr>
+                        <td>${date}</td>
+                        <td>${oo}</td>
+                        <td>${om}</td>
+                        <td>${oo + om}</td>
+                    </tr>
+                `);
+                    });
+
+                    // 合計
+                    $("#totalOoatari").text(totalOoatari);
+                    $("#totalOmake").text(totalOmake);
+                    $("#grandTotal").text(totalOoatari + totalOmake);
+
+                    // 1件も表示するデータがなければテーブルを非表示
+                    if (rowCount === 0) {
+                        $("#counterTable").hide();
+                    } else {
+                        $("#counterTable").show();
+                    }
+
+                }
+            );
         }
     </script>
 </body>
